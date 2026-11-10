@@ -1,0 +1,10 @@
+# Never commit these: partition backups (they can hold device secrets), the tablet's secrets file (Wi-Fi
+# password), Moonlight pairing certificates, and logs.
+tablet-backup/
+tabd.local.conf
+tabd-ml/
+*.log
+# build output
+native/build/
+*.o
+secrets.conf

@@ -1,0 +1,5 @@
+https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.2/mbedtls-3.6.2.tar.bz2
+  sha256 8b54fb9bcf4d5a7078028e0520acddefb7900b3e66fec7f7175bb5b7d85ccdca (release tarball: includes the generated
+  psa_crypto_driver_wrappers files the git tag lacks)
+Apache-2.0 OR GPL-2.0-or-later (LICENSE). Copied: include/, library/*.[ch]. Not copied: tests, programs, docs,
+framework, 3rdparty (p256-m/everest are off in the default config). Default mbedtls_config.h, no local changes.

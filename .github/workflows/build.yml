@@ -1,0 +1,60 @@
+name: build
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  host:
+    name: host build + selftests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      - name: build (gcc, -Werror)
+        run: CFLAGS=-Werror sh native/build.sh host
+      - name: selftests
+        run: native/build/host/mlprobe --selftest && native/build/host/tabd --selftest
+
+  android:
+    name: NDK build (arm64, Android 12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779  # v1.6.0
+        id: ndk
+        with:
+          ndk-version: r28c
+          add-to-path: false
+      - name: build (clang, -Werror)
+        run: CFLAGS=-Werror NDK=${{ steps.ndk.outputs.ndk-path }} sh native/build.sh android
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: tabd-arm64
+          path: native/build/tabd
+          if-no-files-found: error
+
+  scrub:
+    name: no personal paths or dev history
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+      # Any hit fails, except lines that a later phase removes: .github/scrub-allow lists them by file and term, each
+      # with the finding that removes it. An entry that matches nothing fails too, so the list only shrinks. The
+      # reference's own device folder may name its history.
+      - name: grep
+        run: |
+          set +e
+          hits=$(grep -rn -I -i -E --exclude-dir=.git --exclude-dir=.github --exclude-dir=third_party \
+            --exclude-dir=rk3399-tve1030g --exclude=LICENSE \
+            'ponytail|coordinator|judge|webrtc|surface/|headless|C:\\Tools|C:/Tools|/c/Tools|C:\\dev|steam|parsec|2184|2560x1440|Dummy|IoT|2026-[0-9]{2}-[0-9]{2}|\bP[0-9]\b|when this was written' .)
+          [ $? -le 1 ] || { echo "::error::grep failed"; exit 1; }
+          fail=0
+          while IFS= read -r p; do
+            case $p in '' | '#'*) continue ;; esac
+            printf '%s\n' "$hits" | grep -q -i -E -- "$p" || { echo "::error::stale entry in .github/scrub-allow (delete it): $p"; fail=1; }
+            hits=$(printf '%s\n' "$hits" | grep -v -i -E -- "$p")
+          done < .github/scrub-allow
+          if [ -n "$hits" ]; then printf '%s\n' "$hits"; echo "::error::personal paths or dev-history text (above)"; fail=1; fi
+          exit $fail

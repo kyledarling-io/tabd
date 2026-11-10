@@ -1,0 +1,2 @@
+# Lines the scrub grep may still find, until the phase that removes them (tabd-audit findings). One extended regex per
+# line, matched case-insensitively against grep's "./file:line:text" output: keep each one to one file and one term.

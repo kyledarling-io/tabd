@@ -1,0 +1,7 @@
+# Everything under native/ runs on the tablet or in a POSIX shell: LF on every checkout, Windows included.
+# PowerShell gets CRLF. native/third_party/ is vendored byte for byte: no conversion at all (last, so it wins).
+* text=auto
+native/** text=auto eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+native/third_party/** -text

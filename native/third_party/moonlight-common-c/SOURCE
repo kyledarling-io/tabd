@@ -1,0 +1,7 @@
+https://github.com/moonlight-stream/moonlight-common-c e80a786afedeaccff63e839e68c8f3d8a057c13d (2026-11-03 "Handle ENet disconnects with short headers")
+  enet/   https://github.com/cgutman/enet aca87840b57f045a1f7f9299e4b1b9b8e2a5e2f1 (submodule pin; MIT, enet/LICENSE)
+  nanors/ https://github.com/sleepybishop/nanors a9b1636f9c98dbfdd0daeaf6982ccd24d1c30f29 (submodule pin; MIT, nanors/LICENSE)
+GPL-3.0 (LICENSE.txt). Anything linked with it, tabd and mlprobe included, is GPL-3.0 as a whole: ship
+the source with any binary.
+Copied: src/, enet/*.c + include/, nanors/rs.[ch] + deps/obl/oblas_{common,lite} + gf2_8 tables. Not copied: CMake
+files, enet docs/build files, nanors tests and the 16-bit variants. No local changes.

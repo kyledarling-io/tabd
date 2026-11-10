@@ -1,0 +1,41 @@
+# tabd.conf: the tablet's settings, "key = value", # comments. On the tablet: /data/local/tmp/tabd/tabd.conf, which
+# run.sh push makes from this file only when the tablet has none (TABD_CONF=<file> pushes another; a device folder may
+# have its own, e.g. devices/rk3399-tve1030g/tabd.conf). The tablet's own copy is never in git.
+# tabd reads it when it starts, the scripts at boot: after an edit, restart tabd (adb shell pkill -x tabd), or reboot
+# for the network keys. A line tabd doesn't understand stops it (boot.sh retries, and a crash loop reboots once), so
+# check `run.sh log` after an edit.
+# Not here: the Wi-Fi password (secrets.conf, see tabd.local.conf.example) and the brightness, which the on-glass
+# gesture (README) saves in state/brightness by itself.
+
+# the Sunshine PC: auto (the address of the last good session, then mDNS), or HOST[:PORT] (the port defaults to
+# Sunshine's own; mDNS finds only the address, so give a moved port as pc = :PORT)
+pc = auto
+# the tablet's orientation, clockwise from the panel's native landscape: 0, 90, 180 or 270; or auto, from the
+# accelerometer on a board with that hook (only the reference has one; else the last one used). Locked when tabd
+# starts (turned the tablet? restart tabd); portrait asks Sunshine for the panel turned.
+orient = 0
+# touches reach Windows (0: only logged, for testing)
+input = 1
+# the stream's bitrate in kbps (default 18000, FEC included); keep it under what the decoder takes
+# bitrate = 18000
+
+# the network links, in order: the first carries the stream, the next takes over while it's down and hands back when
+# it forwards again. Any interface names; a wlan one is Wi-Fi (wifi.sh, secrets.conf). Ethernet first (eth0 wlan0),
+# Wi-Fi first (wlan0 eth0, or wlan0 alone); a USB-C link (usb0) would be one more name here, once there's a gadget.
+links = eth0 wlan0
+# Wi-Fi's regulatory country (required for Wi-Fi; here or in secrets.conf), and optionally one channel (MHz) or one AP
+# wifi_country = US
+# wifi_freq = 5180
+# wifi_bssid = 00:11:22:33:44:55
+
+# found by themselves; set one only when the log shows the wrong pick:
+# connector = eDP            # eDP, DSI, LVDS or DPI (default: the first connected one)
+# touch_driver = Goodix-TS   # the touchscreen's driver (/sys/class/input/eventN/device/device/driver) ...
+# touch_parent = 2-0014      # ... and the end of its device path (default: by capabilities, never by name)
+# backlight = backlight      # /sys/class/backlight/NAME (default: the first there)
+# composer = vendor.hwcomposer-2-1   # Android's composer HAL, stopped at boot (default: every *hwcomposer* or
+#                                    # *graphics.composer* service that runs)
+# quirks:
+# fixed_mac = eth0           # a MAC from the serial on that link, for a NIC that picks a random one every boot
+# adb_allow = auto           # the adb allow-list (only the PC): auto = on when adb is unauthenticated (ro.adb.secure
+#                            # isn't 1); 1 or 0 forces it

@@ -1,0 +1,30 @@
+# tabd.rc: makes tabd the tablet's display at boot. Installed as /vendor/etc/init/tabd.rc by install.sh (adb
+# disable-verity + remount, then a trial boot). The same file on every device; everything else lives in
+# /data/local/tmp/tabd, so updates never touch /vendor. boot.sh runs tabd (appliance mode) and stops the device's
+# composer itself; Android boots only for maintenance (state/off, set over adb).
+# To undo: adb shell rm /vendor/etc/init/tabd.rc (after adb remount), or adb enable-verity + reboot.
+# Before the single folder, this started /data/local/tmp/tabd-decide.sh, now a stub that runs boot.sh.
+
+service tabd /system/bin/sh /data/local/tmp/tabd/boot.sh
+    user root
+    group root input graphics system wakelock
+    seclabel u:r:su:s0
+    disabled
+    oneshot
+
+on post-fs-data
+    start tabd
+
+# Appliance mode: stop Android's display and app stack as soon as init starts it. zygote dies before it forks
+# system_server, so Android's input stack never opens an input device. netd goes too: with no system_server to
+# configure it, its routing rules only leave the tablet unreachable (boot.sh restores routing once it's gone).
+on property:vendor.tabd.mode=appliance && property:init.svc.netd=running
+    stop netd
+on property:vendor.tabd.mode=appliance && property:init.svc.zygote=running
+    stop zygote
+on property:vendor.tabd.mode=appliance && property:init.svc.zygote_secondary=running
+    stop zygote_secondary
+on property:vendor.tabd.mode=appliance && property:init.svc.surfaceflinger=running
+    stop surfaceflinger
+on property:vendor.tabd.mode=appliance && property:init.svc.bootanim=running
+    stop bootanim

@@ -1,0 +1,14 @@
+# tabd.local.conf: the tablet's secrets, "key = value". NEVER in git. The real file lives on the PC, outside the clone,
+# at ~/.config/tabd/tabd.local.conf ($XDG_CONFIG_HOME/tabd/ if that is set; in Git Bash ~ is your Windows profile
+# folder), or wherever TABD_LOCAL=<file> points. run.sh push / run.sh wifi copy it to /data/local/tmp/tabd/secrets.conf
+# at mode 0600. Nothing prints or logs the password.
+
+# Wi-Fi, for a wlan link in tabd.conf's links: the SSID and its password (WPA3-SAE or WPA2)
+wifi_ssid = YOUR-SSID
+wifi_password = YOUR-PASSWORD
+# required: the regulatory country (two letters); it may be in tabd.conf instead
+wifi_country = XX
+# optional: one channel's frequency in MHz (default: any), one AP (default: the strongest, then kept); here or in
+# tabd.conf
+# wifi_freq = 5180
+# wifi_bssid = 00:11:22:33:44:55
